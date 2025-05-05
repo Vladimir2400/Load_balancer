@@ -1,0 +1,16 @@
+listen_addr: ":8080"
+backends:
+  - "http://localhost:8081"
+  - "http://localhost:8082"
+  - "http://localhost:8083"
+health_check_interval: "10s"
+health_check_timeout: "2s"
+
+rate_limiter:
+  enabled: true
+  default_capacity: 3
+  default_refill_rate: 1
+  cleanup_interval: "1m"
+  db:
+    driver: "sqlite"
+    path: "./limits.db"
