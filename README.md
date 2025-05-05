@@ -144,12 +144,22 @@ go test ./... -race
 **Пример использования `curl`:**
 
 ```bash
-# Установить лимит для IP 1.2.3.4 (емкость 50, скорость 2/сек)
-curl -X POST -H "Content-Type: application/json" -d '{"client_id":"1.2.3.4", "capacity":50, "rate":2}' http://localhost:8080/admin/limits
+  # Добавить лимит (ожидаем 200 OK с JSON)
+        curl -X POST -H "Content-Type: application/json" -d '{"client_id":"1.2.3.4", "capacity":10, "rate":1}' http://localhost:8080/admin/limits
 
-# Получить лимит для IP 1.2.3.4
-curl http://localhost:8080/admin/limits/1.2.3.4
+        # Получить лимит (ожидаем 200 OK с JSON)
+        curl http://localhost:8080/admin/limits/1.2.3.4
 
-# Удалить кастомный лимит для IP 1.2.3.4
-curl -X DELETE http://localhost:8080/admin/limits/1.2.3.4
-``` # Load_balancer
+        # Попробовать превысить лимит (ожидаем несколько 200 OK от бэкенда, затем 429 JSON)
+        for i in {1..15}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/ -A "Client1.2.3.4"; done 
+        # (В Windows/PowerShell цикл for может выглядеть иначе, или можно просто запустить curl много раз вручную)
+        # Пример для PowerShell: 1..15 | % { curl -s -o NUL -w "%{http_code}`n" http://localhost:8080/ -UserAgent "Client1.2.3.4" }
+
+        # Удалить лимит (ожидаем 204 No Content)
+        curl -X DELETE http://localhost:8080/admin/limits/1.2.3.4
+
+        # Получить лимит снова (ожидаем 404 JSON)
+        curl -i http://localhost:8080/admin/limits/1.2.3.4 
+
+        # Проверить ошибку 503 JSON, если остановить все бэкенды и послать запрос на /
+        # curl http://localhost:8080/
