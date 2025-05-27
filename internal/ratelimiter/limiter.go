@@ -91,7 +91,6 @@ func (l *Limiter) runCleanup() {
 	}
 }
 
-// Stop грациозно останавливает Limiter.
 // Сигнализирует горутине очистки о необходимости завершения и ожидает ее остановки.
 func (l *Limiter) Stop() {
 	log.Println("INFO: Stopping Limiter...")
